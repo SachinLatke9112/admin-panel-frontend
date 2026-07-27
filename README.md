@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SpeakMate AI Admin Panel Frontend Documentation
 
 > Implementation guide for adding an **Admin Panel** to the existing SpeakMate AI learner-facing frontend. Produced from a full recursive analysis of the frontend codebase at `SpeakMate AI/SpeakMate_AI/SpeakMate AI/` performed on 2026-07-24. No frontend code was written or modified to produce this document. V1 scope is limited to two modules: **Dashboard** and **Users Management (complete CRUD)**.
@@ -878,3 +879,7 @@ Two structural cleanups worth doing whenever a future module gives the team a na
 5. **Do not build charts or a "Recent Activity" dashboard widget in V1** — the backend has no time-series or activity-log data to back either honestly, and fabricating placeholder data would violate the "verify everything from the codebase" ground rule this document was built on. Revisit once a Lessons or Activity Logs module (see [Future Expansion](#future-expansion)) gives the backend a reason to expose that data.
 6. **Treat `useLocalStorage` and the `STORAGE_KEYS` constants as already-designed-for-this-purpose**, not new infrastructure — they exist in the codebase today, unused, seemingly anticipating exactly the session-persistence work Phase 1 requires. Use them rather than introducing a new persistence approach.
 7. **Leave the `components/layout/` vs. `components/layouts/` cleanup and the unmounted `ThemeProvider` out of V1 scope**, but track it as explicit follow-up work (see [Future Expansion](#future-expansion)) rather than letting it remain silently orphaned indefinitely — it's a source of confusion risk for any future contributor exploring the codebase.
+=======
+# admin-panel-frontend
+Admin Panel
+>>>>>>> 03b26da4ffb8b7fd3a455fc6223545b03ce39bc4
