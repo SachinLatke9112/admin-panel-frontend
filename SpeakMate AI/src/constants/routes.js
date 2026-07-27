@@ -4,6 +4,7 @@ export const ROUTES = {
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
   DASHBOARD: "/dashboard",
+  ADMIN_DASHBOARD: "/admin-dashboard", // ✅ Only this line
   AI_CHAT: "/ai-chat",
   SPEAKING: "/speaking",
   GRAMMAR: "/grammar",

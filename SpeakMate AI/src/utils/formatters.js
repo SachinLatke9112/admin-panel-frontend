@@ -88,6 +88,20 @@ export function capitalize(str) {
 }
 
 /**
+ * Get uppercase initials from a full name (e.g. "Priya Sharma" -> "PS")
+ * @param {string} name
+ */
+export function getInitials(name) {
+  if (!name) return "";
+  const parts = name.trim().split(/\s+/);
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+  return initials;
+}
+
+/**
  * Get relative time string (e.g., "2 hours ago")
  * @param {string|Date} date
  */

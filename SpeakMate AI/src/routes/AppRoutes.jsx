@@ -24,6 +24,9 @@ import Vocabulary from "@pages/Vocabulary";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
+import AdminDashboard from "@pages/AdminDashboard";
+import AdminLayout from "@components/admin/AdminLayout";
+
 function PageTransition({ children }) {
   return (
     <motion.div
@@ -191,6 +194,24 @@ export function AppRoutes() {
                   <Settings />
                 </PageTransition>
               </ProtectedRoute>
+            }
+          />
+        </Route>
+
+        {/* Admin Pages — AdminLayout provides Sidebar + AdminNavbar, independent of AppLayout */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            path={ROUTES.ADMIN_DASHBOARD}
+            element={
+              <PageTransition>
+                <AdminDashboard />
+              </PageTransition>
             }
           />
         </Route>

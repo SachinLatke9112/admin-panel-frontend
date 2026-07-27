@@ -9,6 +9,7 @@ export function Button({
     primary: "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-500",
     secondary: "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50",
     ghost: "text-slate-700 hover:bg-slate-100",
+    danger: "bg-rose-600 text-white shadow-lg shadow-rose-600/20 hover:bg-rose-500",
   };
 
   return (
