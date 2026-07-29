@@ -6,17 +6,6 @@ import {
   validateAdminResetPasswordForm,
 } from "../utils/adminValidators";
 
-/**
- * useAdminPasswordReset — Admin Forgot Password / OTP Verification / Reset
- * Password request+validation state. Sibling to useAdminAuth, kept separate
- * since it drives three calls (request OTP, verify OTP, reset password)
- * across three pages rather than one login submission.
- *
- * Frontend-only for now: it validates the form, calls the stub
- * adminAuthService methods, and tracks loading/error state — same shape
- * as useAdminAuth so swapping in real API calls later requires no
- * changes to the calling components.
- */
 export function useAdminPasswordReset() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,77 +16,73 @@ export function useAdminPasswordReset() {
     setFieldErrors({});
   }, []);
 
-  const requestOtp = useCallback(async ({ email }) => {
-    const validationErrors = validateAdminForgotPasswordForm({ email });
-
-    if (Object.keys(validationErrors).length > 0) {
-      setFieldErrors(validationErrors);
-      return { success: false };
-    }
-
+  const runRequest = useCallback(async (request, fallbackMessage) => {
     setIsLoading(true);
     setError("");
     setFieldErrors({});
 
     try {
-      const response = await adminAuthService.requestPasswordResetOtp({ email });
+      const response = await request();
       return { success: true, data: response.data };
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          "Unable to send the OTP. Please check the email address and try again."
+      setError(err?.response?.data?.message || fallbackMessage);
+      return { success: false };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const requestOtp = useCallback(
+    async ({ email, role }) => {
+      const validationErrors = validateAdminForgotPasswordForm({ email, role });
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        return { success: false };
+      }
+
+      return runRequest(
+        () => adminAuthService.requestPasswordResetOtp({ email, role }),
+        "Unable to send the OTP. Please check the email address and try again."
       );
-      return { success: false };
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [runRequest]
+  );
 
-  const verifyOtp = useCallback(async ({ email, otp }) => {
-    const validationErrors = validateAdminOtpForm({ otp });
+  const verifyOtp = useCallback(
+    async ({ email, otp, role }) => {
+      const validationErrors = validateAdminOtpForm({ otp, role });
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        return { success: false };
+      }
 
-    if (Object.keys(validationErrors).length > 0) {
-      setFieldErrors(validationErrors);
-      return { success: false };
-    }
+      return runRequest(
+        () => adminAuthService.verifyPasswordResetOtp({ email, otp, role }),
+        "Invalid or expired OTP. Please try again."
+      );
+    },
+    [runRequest]
+  );
 
-    setIsLoading(true);
-    setError("");
-    setFieldErrors({});
+  const resetPassword = useCallback(
+    async ({ email, password, confirmPassword, role }) => {
+      const validationErrors = validateAdminResetPasswordForm({
+        password,
+        confirmPassword,
+        role,
+      });
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        return { success: false };
+      }
 
-    try {
-      const response = await adminAuthService.verifyPasswordResetOtp({ email, otp });
-      return { success: true, data: response.data };
-    } catch (err) {
-      setError(err?.response?.data?.message || "Invalid or expired OTP. Please try again.");
-      return { success: false };
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const resetPassword = useCallback(async ({ email, password, confirmPassword }) => {
-    const validationErrors = validateAdminResetPasswordForm({ password, confirmPassword });
-
-    if (Object.keys(validationErrors).length > 0) {
-      setFieldErrors(validationErrors);
-      return { success: false };
-    }
-
-    setIsLoading(true);
-    setError("");
-    setFieldErrors({});
-
-    try {
-      const response = await adminAuthService.resetPassword({ email, password });
-      return { success: true, data: response.data };
-    } catch (err) {
-      setError(err?.response?.data?.message || "Unable to reset the password. Please try again.");
-      return { success: false };
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      return runRequest(
+        () => adminAuthService.resetPassword({ email, password, confirmPassword, role }),
+        "Unable to reset the password. Please try again."
+      );
+    },
+    [runRequest]
+  );
 
   return { requestOtp, verifyOtp, resetPassword, isLoading, error, fieldErrors, clearErrors };
 }

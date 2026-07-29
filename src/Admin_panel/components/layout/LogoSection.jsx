@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export function LogoSection({ align = "center" }) {
+export function LogoSection({ align = "center", badge = "Admin Panel" }) {
   return (
     <div className={`flex flex-col ${align === "center" ? "items-center text-center" : "items-start text-left"}`}>
       <Link to="/" className="inline-flex items-center gap-3">
@@ -9,9 +9,8 @@ export function LogoSection({ align = "center" }) {
         </span>
         <span className="text-xl font-black tracking-tight text-slate-950">SpeakMate AI</span>
       </Link>
-
       <span className="mt-3 inline-flex items-center rounded-full bg-slate-900 px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm shadow-slate-900/10">
-        Admin Panel
+        {badge}
       </span>
     </div>
   );

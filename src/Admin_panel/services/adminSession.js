@@ -1,26 +1,38 @@
-/**
- * Admin_panel/services/adminSession.js
- *
- * TEMPORARY frontend-only dev bypass for Admin Panel authentication.
- * Stores a plain boolean flag in localStorage so protected admin routes
- * (e.g. /admin/dashboard) can be built and navigated to before a real
- * backend admin-login endpoint exists. No token, no roles, no expiry.
- *
- * To restore real authentication later: swap this file's implementation
- * for a real session check (e.g. presence/validity of a JWT returned by
- * adminAuthService.login()) — call sites (AdminProtectedRoute,
- * AdminLoginForm) should not need to change, only what happens inside
- * these three functions.
- */
+import { isAdminRole } from "../constants/adminRoles";
 
-const ADMIN_SESSION_KEY = "speakmate_admin_authenticated";
+const ADMIN_SESSION_KEY = "speakmate_admin_session";
 
-export function isAdminAuthenticated() {
-  return localStorage.getItem(ADMIN_SESSION_KEY) === "true";
+export function getAdminSession() {
+  try {
+    const session = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY));
+    return session?.authenticated && isAdminRole(session.role) ? session : null;
+  } catch {
+    return null;
+  }
 }
 
-export function setAdminAuthenticated() {
-  localStorage.setItem(ADMIN_SESSION_KEY, "true");
+export function isAdminAuthenticated(allowedRoles) {
+  const session = getAdminSession();
+  if (!session) return false;
+
+  if (!allowedRoles) return true;
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  return roles.includes(session.role);
+}
+
+export function getAuthenticatedAdminRole() {
+  return getAdminSession()?.role ?? null;
+}
+
+export function setAdminAuthenticated({ role, token = null, rememberMe = false }) {
+  if (!isAdminRole(role)) {
+    throw new Error("Cannot create an admin session with an unsupported role.");
+  }
+
+  localStorage.setItem(
+    ADMIN_SESSION_KEY,
+    JSON.stringify({ authenticated: true, role, token, rememberMe: Boolean(rememberMe) })
+  );
 }
 
 export function clearAdminAuthenticated() {

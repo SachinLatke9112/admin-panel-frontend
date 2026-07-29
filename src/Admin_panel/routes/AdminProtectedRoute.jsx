@@ -1,12 +1,20 @@
 import { Navigate } from "react-router-dom";
 import ROUTES from "@constants/routes";
-import { isAdminAuthenticated } from "../services/adminSession";
+import { getAdminRoleConfig } from "../constants/adminRoles";
+import { getAdminSession, isAdminAuthenticated } from "../services/adminSession";
 
-// Mirrors the shape of src/routes/ProtectedRoute.jsx — same guard pattern,
-// scoped to the Admin Panel's own (currently mock) session flag.
-export function AdminProtectedRoute({ children }) {
-  if (!isAdminAuthenticated()) {
-    return <Navigate to={ROUTES.ADMIN_LOGIN} replace />;
+export function AdminProtectedRoute({ children, allowedRoles, requiredRole, unauthorizedRoute }) {
+  const acceptedRoles = allowedRoles ?? requiredRole;
+  const session = getAdminSession();
+
+  if (!session) {
+    const loginRoute = requiredRole ? getAdminRoleConfig(requiredRole).loginRoute : ROUTES.ADMIN_LOGIN;
+    return <Navigate to={loginRoute} replace />;
+  }
+
+  if (acceptedRoles && !isAdminAuthenticated(acceptedRoles)) {
+    const fallbackRoute = unauthorizedRoute ?? getAdminRoleConfig(session.role).dashboardRoute;
+    return <Navigate to={fallbackRoute} replace />;
   }
 
   return children;

@@ -7,6 +7,14 @@
  * frontend never accepts something the API would reject anyway.
  */
 
+import { isAdminRole } from "../constants/adminRoles";
+
+function addRoleError(errors, role) {
+  if (!isAdminRole(role)) {
+    errors.role = "A valid authentication role is required.";
+  }
+}
+
 export function isValidAdminEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
@@ -21,8 +29,9 @@ export function getAdminPasswordError(password) {
   return "";
 }
 
-export function validateAdminLoginForm({ email, password }) {
+export function validateAdminLoginForm({ email, password, role }) {
   const errors = {};
+  addRoleError(errors, role);
 
   if (!email || !email.trim()) {
     errors.email = "Email address is required.";
@@ -38,8 +47,9 @@ export function validateAdminLoginForm({ email, password }) {
   return errors;
 }
 
-export function validateAdminForgotPasswordForm({ email }) {
+export function validateAdminForgotPasswordForm({ email, role }) {
   const errors = {};
+  addRoleError(errors, role);
 
   if (!email || !email.trim()) {
     errors.email = "Email address is required.";
@@ -50,8 +60,9 @@ export function validateAdminForgotPasswordForm({ email }) {
   return errors;
 }
 
-export function validateAdminOtpForm({ otp }) {
+export function validateAdminOtpForm({ otp, role }) {
   const errors = {};
+  addRoleError(errors, role);
 
   if (!otp || !String(otp).trim()) {
     errors.otp = "OTP code is required.";
@@ -69,8 +80,9 @@ export function getAdminPasswordStrengthError(password) {
   return "";
 }
 
-export function validateAdminResetPasswordForm({ password, confirmPassword }) {
+export function validateAdminResetPasswordForm({ password, confirmPassword, role }) {
   const errors = {};
+  addRoleError(errors, role);
 
   const requiredError = getAdminPasswordError(password);
   if (requiredError) {

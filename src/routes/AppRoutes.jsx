@@ -10,8 +10,17 @@ import AdminLogin from "@/Admin_panel/pages/AdminLogin";
 import AdminForgotPassword from "@/Admin_panel/pages/AdminForgotPassword";
 import AdminOtpVerification from "@/Admin_panel/pages/AdminOtpVerification";
 import AdminResetPassword from "@/Admin_panel/pages/AdminResetPassword";
+import SchoolAdminLogin from "@/Admin_panel/pages/SchoolAdminLogin";
+import SchoolAdminForgotPassword from "@/Admin_panel/pages/SchoolAdminForgotPassword";
+import SchoolAdminOtpVerification from "@/Admin_panel/pages/SchoolAdminOtpVerification";
+import SchoolAdminResetPassword from "@/Admin_panel/pages/SchoolAdminResetPassword";
+import TeacherLogin from "@/Admin_panel/pages/TeacherLogin";
+import TeacherForgotPassword from "@/Admin_panel/pages/TeacherForgotPassword";
+import TeacherOtpVerification from "@/Admin_panel/pages/TeacherOtpVerification";
+import TeacherResetPassword from "@/Admin_panel/pages/TeacherResetPassword";
 import AdminDashboard from "@/Admin_panel/pages/AdminDashboard";
 import AdminProtectedRoute from "@/Admin_panel/routes/AdminProtectedRoute";
+import { ADMIN_ROLES } from "@/Admin_panel/constants/adminRoles";
 import AiChat from "@pages/AiChat";
 import Dashboard from "@pages/Dashboard";
 import ForgotPassword from "@pages/ForgotPassword";
@@ -201,53 +210,41 @@ export function AppRoutes() {
           />
         </Route>
 
-        {/* Admin Panel */}
-        <Route
-          path={ROUTES.ADMIN_LOGIN}
-          element={
-            <PageTransition>
-              <AdminLogin />
-            </PageTransition>
-          }
-        />
+        {/* Role-based administration authentication */}
+        {[
+          [ROUTES.ADMIN_LOGIN, AdminLogin],
+          [ROUTES.ADMIN_FORGOT_PASSWORD, AdminForgotPassword],
+          [ROUTES.ADMIN_VERIFY_OTP, AdminOtpVerification],
+          [ROUTES.ADMIN_RESET_PASSWORD, AdminResetPassword],
+          [ROUTES.SCHOOL_ADMIN_LOGIN, SchoolAdminLogin],
+          [ROUTES.SCHOOL_ADMIN_FORGOT_PASSWORD, SchoolAdminForgotPassword],
+          [ROUTES.SCHOOL_ADMIN_VERIFY_OTP, SchoolAdminOtpVerification],
+          [ROUTES.SCHOOL_ADMIN_RESET_PASSWORD, SchoolAdminResetPassword],
+          [ROUTES.TEACHER_LOGIN, TeacherLogin],
+          [ROUTES.TEACHER_FORGOT_PASSWORD, TeacherForgotPassword],
+          [ROUTES.TEACHER_VERIFY_OTP, TeacherOtpVerification],
+          [ROUTES.TEACHER_RESET_PASSWORD, TeacherResetPassword],
+        ].map(([path, AuthPage]) => (
+          <Route key={path} path={path} element={<PageTransition><AuthPage /></PageTransition>} />
+        ))}
 
-        <Route
-          path={ROUTES.ADMIN_FORGOT_PASSWORD}
-          element={
-            <PageTransition>
-              <AdminForgotPassword />
-            </PageTransition>
-          }
-        />
-
-        <Route
-          path={ROUTES.ADMIN_VERIFY_OTP}
-          element={
-            <PageTransition>
-              <AdminOtpVerification />
-            </PageTransition>
-          }
-        />
-
-        <Route
-          path={ROUTES.ADMIN_RESET_PASSWORD}
-          element={
-            <PageTransition>
-              <AdminResetPassword />
-            </PageTransition>
-          }
-        />
-
-        <Route
-          path={ROUTES.ADMIN_DASHBOARD}
-          element={
-            <PageTransition>
-              <AdminProtectedRoute>
-                <AdminDashboard />
-              </AdminProtectedRoute>
-            </PageTransition>
-          }
-        />
+        {[
+          [ROUTES.ADMIN_DASHBOARD, ADMIN_ROLES.SUPER_ADMIN],
+          [ROUTES.SCHOOL_ADMIN_DASHBOARD, ADMIN_ROLES.SCHOOL_ADMIN],
+          [ROUTES.TEACHER_DASHBOARD, ADMIN_ROLES.TEACHER],
+        ].map(([path, role]) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <PageTransition>
+                <AdminProtectedRoute requiredRole={role}>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              </PageTransition>
+            }
+          />
+        ))}
 
         {/* Not Found */}
         <Route

@@ -1,86 +1,75 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ROUTES from "@constants/routes";
 import AdminInput from "../common/AdminInput";
 import AdminButton from "../common/AdminButton";
+import AdminAlert from "../common/AdminAlert";
 import PasswordInput from "./PasswordInput";
-import { setAdminAuthenticated } from "../../services/adminSession";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 function MailIcon() {
   return (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
     </svg>
   );
 }
 
-// TEMPORARY DEV BYPASS: real submission (client-side validation +
-// adminAuthService.login() via the useAdminAuth hook) is intentionally not
-// wired up here so the rest of the Admin Panel can be built without a
-// backend. The short delay below exists only to preserve the existing
-// loading-state UI (spinner, disabled fields) — it is not simulating a
-// real request. Restore the useAdminAuth() call in place of this bypass
-// once a real admin-login endpoint exists; see adminAuthService.js /
-// useAdminAuth.js / adminValidators.js, which already implement the
-// validation and request flow this bypass skips.
-const BYPASS_DELAY_MS = 500;
-
-export function AdminLoginForm() {
+export function AdminLoginForm({
+  role,
+  emailPlaceholder,
+  buttonText,
+  forgotPasswordRoute,
+  dashboardRoute,
+}) {
   const navigate = useNavigate();
+  const { login, isLoading, error, fieldErrors, clearErrors } = useAdminAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (field) => (event) => {
-    setForm((prev) => ({ ...prev, [field]: event.target.value }));
+    setForm((previous) => ({ ...previous, [field]: event.target.value }));
+    if (error || fieldErrors[field]) clearErrors();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
-
-    window.setTimeout(() => {
-      setAdminAuthenticated();
-      navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
-    }, BYPASS_DELAY_MS);
+    const result = await login({ ...form, role, rememberMe });
+    if (result.success) navigate(dashboardRoute, { replace: true });
   };
 
   return (
     <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+      {error && <AdminAlert tone="error">{error}</AdminAlert>}
       <AdminInput
-        id="admin-email"
+        id={`${role.toLowerCase()}-email`}
         name="email"
         label="Email address"
         type="email"
         autoComplete="username"
-        placeholder="admin@speakmate.ai"
+        placeholder={emailPlaceholder}
         value={form.email}
         onChange={handleChange("email")}
         icon={<MailIcon />}
+        error={fieldErrors.email}
         disabled={isLoading}
         required
       />
-
       <PasswordInput
-        id="admin-password"
+        id={`${role.toLowerCase()}-password`}
         name="password"
         label="Password"
         autoComplete="current-password"
-        placeholder="Enter your admin password"
+        placeholder="Enter your password"
         value={form.password}
         onChange={handleChange("password")}
+        error={fieldErrors.password}
         disabled={isLoading}
         required
       />
-
       <div className="flex items-center justify-between text-sm">
-        <label htmlFor="admin-remember-me" className="flex items-center gap-2 text-slate-600">
+        <label htmlFor={`${role.toLowerCase()}-remember-me`} className="flex items-center gap-2 text-slate-600">
           <input
-            id="admin-remember-me"
+            id={`${role.toLowerCase()}-remember-me`}
             type="checkbox"
             checked={rememberMe}
             disabled={isLoading}
@@ -89,19 +78,17 @@ export function AdminLoginForm() {
           />
           Remember me
         </label>
-
         <button
           type="button"
           disabled={isLoading}
-          onClick={() => navigate(ROUTES.ADMIN_FORGOT_PASSWORD)}
-          className="font-semibold text-indigo-600 transition hover:text-indigo-500 focus:outline-none focus:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-indigo-600"
+          onClick={() => navigate(forgotPasswordRoute)}
+          className="font-semibold text-indigo-600 transition hover:text-indigo-500 focus:outline-none focus:underline disabled:cursor-not-allowed disabled:opacity-50"
         >
           Forgot password?
         </button>
       </div>
-
       <AdminButton type="submit" className="w-full" isLoading={isLoading} loadingText="Signing In...">
-        Sign in to Admin Panel
+        {buttonText}
       </AdminButton>
     </form>
   );

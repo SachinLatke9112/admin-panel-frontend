@@ -1,16 +1,8 @@
 import { useCallback, useState } from "react";
 import { adminAuthService } from "../services/adminAuthService";
+import { setAdminAuthenticated } from "../services/adminSession";
 import { validateAdminLoginForm } from "../utils/adminValidators";
 
-/**
- * useAdminAuth — Admin Login request/validation state.
- *
- * Frontend-only for now: it validates the form, calls the stub
- * adminAuthService, and tracks loading/error state. It intentionally does
- * not persist a session or expose `isAuthenticated` — that belongs to a
- * future AdminAuthContext once a real backend admin-login endpoint and an
- * AdminRoute guard are built alongside the rest of the Admin Panel.
- */
 export function useAdminAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,8 +13,8 @@ export function useAdminAuth() {
     setFieldErrors({});
   }, []);
 
-  const login = useCallback(async ({ email, password, rememberMe }) => {
-    const validationErrors = validateAdminLoginForm({ email, password });
+  const login = useCallback(async ({ email, password, role, rememberMe }) => {
+    const validationErrors = validateAdminLoginForm({ email, password, role });
 
     if (Object.keys(validationErrors).length > 0) {
       setFieldErrors(validationErrors);
@@ -34,12 +26,17 @@ export function useAdminAuth() {
     setFieldErrors({});
 
     try {
-      const response = await adminAuthService.login({ email, password, rememberMe });
+      const response = await adminAuthService.login({ email, password, role });
+      setAdminAuthenticated({
+        role,
+        token: response.data?.token,
+        rememberMe,
+      });
       return { success: true, data: response.data };
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          "Unable to sign in. Please check your credentials and try again."
+        "Unable to sign in. Please check your credentials and try again."
       );
       return { success: false };
     } finally {
