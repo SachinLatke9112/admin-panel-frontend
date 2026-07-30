@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@admin": path.resolve(__dirname, "./src/frontend/admin-dashboard"),
       "@components": path.resolve(__dirname, "./src/components"),
       "@pages": path.resolve(__dirname, "./src/pages"),
       "@hooks": path.resolve(__dirname, "./src/hooks"),
@@ -21,6 +22,7 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "./src/assets"),
       "@styles": path.resolve(__dirname, "./src/styles"),
       "@routes": path.resolve(__dirname, "./src/routes"),
+      "@school-admin": path.resolve(__dirname, "./src/frontend/school-admin-dashboard"),
     },
   },
   server: {
