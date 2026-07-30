@@ -421,7 +421,7 @@ export function AppRoutes() {
             element={
               <AdminRoute>
                 <PageTransition>
-                  <AdminDashboardPage />
+                  <AdminSettings />
                 </PageTransition>
               </AdminRoute>
             }

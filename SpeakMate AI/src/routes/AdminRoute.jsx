@@ -5,7 +5,7 @@ import ROUTES from "@constants/routes";
 export function AdminRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
-  const isUserManagementDemo = location.pathname === ROUTES.ADMIN_USERS;
+  const isUserManagementDemo = location.pathname === ROUTES.ADMIN_USERS || location.pathname === ROUTES.ADMIN_SETTINGS;
   const hasQueryBypass = new URLSearchParams(location.search).get("admin_bypass") === "true";
   const isBypassEnabled = isUserManagementDemo || hasQueryBypass;
 

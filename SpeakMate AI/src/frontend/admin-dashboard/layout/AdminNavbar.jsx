@@ -261,25 +261,37 @@ export function AdminNavbar() {
                                     </div>
 
                                     <div className="py-1.5">
-                                        <a
-                                            href={ROUTES.PROFILE}
-                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setProfileOpen(false);
+                                                navigate(ROUTES.ADMIN_PROFILE);
+                                            }}
+                                            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                                         >
                                             <User className="h-4 w-4" />
                                             Profile
-                                        </a>
-                                        <a
-                                            href={ROUTES.SETTINGS}
-                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setProfileOpen(false);
+                                                navigate(ROUTES.ADMIN_SETTINGS);
+                                            }}
+                                            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                                         >
                                             <Settings className="h-4 w-4" />
                                             Settings
-                                        </a>
+                                        </button>
                                     </div>
 
                                     <div className="border-t border-[var(--border-default)] py-1.5">
                                         <button
-                                            onClick={logout}
+                                            onClick={() => {
+                                                setProfileOpen(false);
+                                                logout();
+                                                navigate(ROUTES.LOGIN);
+                                            }}
                                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-500/10"
                                         >
                                             <LogOut className="h-4 w-4" />
