@@ -9,7 +9,7 @@ import AdminResetPasswordForm from "../forms/AdminResetPasswordForm";
 import AdminFooter from "./AdminFooter";
 import LogoSection from "./LogoSection";
 
-function AdminAuthShell({ config, children }) {
+function AdminAuthShell({ children }) {
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-4 py-12 sm:px-6">
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -18,7 +18,7 @@ function AdminAuthShell({ config, children }) {
                 <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-violet-200/30 blur-3xl" />
             </div>
             <motion.div initial="hidden" animate="visible" variants={itemVariants} className="relative w-full max-w-[29rem]">
-                <LogoSection badge={config.topBadge} />
+                <LogoSection />
                 <AdminCard className="mt-6 p-7 sm:p-9">{children}</AdminCard>
                 <AdminFooter />
             </motion.div>
@@ -28,11 +28,8 @@ function AdminAuthShell({ config, children }) {
 
 export function RoleLoginPage({ config }) {
     return (
-        <AdminAuthShell config={config}>
-            <span className="inline-flex items-center rounded-full bg-slate-900 px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm shadow-slate-900/10">
-                {config.panelBadge}
-            </span>
-            <h1 className="mt-3 text-2xl font-black text-slate-950">{config.heading}</h1>
+        <AdminAuthShell>
+            <h1 className="text-2xl font-black text-slate-950">{config.heading}</h1>
             <p className="mt-2 text-sm text-slate-600">{config.subtitle}</p>
             <AdminLoginForm
                 role={config.role}
@@ -47,7 +44,7 @@ export function RoleLoginPage({ config }) {
 
 export function RoleForgotPasswordPage({ config }) {
     return (
-        <AdminAuthShell config={config}>
+        <AdminAuthShell>
             <h1 className="text-2xl font-black text-slate-950">{config.forgotPasswordHeading}</h1>
             <p className="mt-2 text-sm text-slate-600">
                 Enter your email address and we'll send you a one-time password (OTP) to verify your identity.
@@ -70,7 +67,7 @@ export function RoleOtpVerificationPage({ config }) {
     if (!email) return <Navigate to={config.forgotPasswordRoute} replace />;
 
     return (
-        <AdminAuthShell config={config}>
+        <AdminAuthShell>
             <h1 className="text-2xl font-black text-slate-950">{config.otpHeading}</h1>
             <p className="mt-2 text-sm text-slate-600">
                 Enter the 6-digit code sent to <span className="font-semibold text-slate-900">{email}</span>.
@@ -88,7 +85,7 @@ export function RoleResetPasswordPage({ config }) {
     if (!email) return <Navigate to={config.forgotPasswordRoute} replace />;
 
     return (
-        <AdminAuthShell config={config}>
+        <AdminAuthShell>
             <h1 className="text-2xl font-black text-slate-950">{config.resetPasswordHeading}</h1>
             <p className="mt-2 text-sm text-slate-600">
                 Choose a new password for <span className="font-semibold text-slate-900">{email}</span>.

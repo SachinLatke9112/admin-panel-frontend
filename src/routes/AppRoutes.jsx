@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import AppLayout from "@components/layout/AppLayout";
@@ -18,7 +18,14 @@ import TeacherLogin from "@/Admin_panel/pages/TeacherLogin";
 import TeacherForgotPassword from "@/Admin_panel/pages/TeacherForgotPassword";
 import TeacherOtpVerification from "@/Admin_panel/pages/TeacherOtpVerification";
 import TeacherResetPassword from "@/Admin_panel/pages/TeacherResetPassword";
+import TeacherDashboardHome from "@/Admin_panel/pages/TeacherDashboardHome";
+import TeacherStudents from "@/Admin_panel/pages/TeacherStudents";
+import TeacherStudentDetails from "@/Admin_panel/pages/TeacherStudentDetails";
+import TeacherAnalytics from "@/Admin_panel/pages/TeacherAnalytics";
+import TeacherReports from "@/Admin_panel/pages/TeacherReports";
+import TeacherProfile from "@/Admin_panel/pages/TeacherProfile";
 import AdminDashboard from "@/Admin_panel/pages/AdminDashboard";
+import TeacherDashboardLayout from "@/Admin_panel/components/teacher/layout/TeacherDashboardLayout";
 import AdminProtectedRoute from "@/Admin_panel/routes/AdminProtectedRoute";
 import { ADMIN_ROLES } from "@/Admin_panel/constants/adminRoles";
 import AiChat from "@pages/AiChat";
@@ -40,12 +47,14 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
 function PageTransition({ children }) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.22, ease: "easeOut" }}
+      exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -231,7 +240,6 @@ export function AppRoutes() {
         {[
           [ROUTES.ADMIN_DASHBOARD, ADMIN_ROLES.SUPER_ADMIN],
           [ROUTES.SCHOOL_ADMIN_DASHBOARD, ADMIN_ROLES.SCHOOL_ADMIN],
-          [ROUTES.TEACHER_DASHBOARD, ADMIN_ROLES.TEACHER],
         ].map(([path, role]) => (
           <Route
             key={path}
@@ -245,6 +253,72 @@ export function AppRoutes() {
             }
           />
         ))}
+
+        <Route
+          path={ROUTES.TEACHER_DASHBOARD}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherDashboardHome />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path={ROUTES.TEACHER_STUDENTS}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherStudents />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path={ROUTES.TEACHER_STUDENT_DETAILS}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherStudentDetails />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path={ROUTES.TEACHER_ANALYTICS}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherAnalytics />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path={ROUTES.TEACHER_REPORTS}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherReports />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path={ROUTES.TEACHER_PROFILE}
+          element={
+            <AdminProtectedRoute requiredRole={ADMIN_ROLES.TEACHER}>
+              <TeacherDashboardLayout>
+                <TeacherProfile />
+              </TeacherDashboardLayout>
+            </AdminProtectedRoute>
+          }
+        />
 
         {/* Not Found */}
         <Route

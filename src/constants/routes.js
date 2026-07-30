@@ -34,6 +34,11 @@ export const ROUTES = {
   TEACHER_VERIFY_OTP: "/teacher/verify-otp",
   TEACHER_RESET_PASSWORD: "/teacher/reset-password",
   TEACHER_DASHBOARD: "/teacher/dashboard",
+  TEACHER_STUDENTS: "/teacher/students",
+  TEACHER_STUDENT_DETAILS: "/teacher/students/:studentId",
+  TEACHER_ANALYTICS: "/teacher/analytics",
+  TEACHER_REPORTS: "/teacher/reports",
+  TEACHER_PROFILE: "/teacher/profile",
 };
 
 export default ROUTES;

@@ -39,3 +39,20 @@ input {
   background: #c7d2fe;
   color: #1e1b4b;
 }
+
+/* Keep Chromium autofill aligned with the light admin authentication inputs. */
+.admin-auth-input {
+  color-scheme: light;
+  caret-color: #0f172a;
+}
+
+.admin-auth-input:-webkit-autofill,
+.admin-auth-input:-webkit-autofill:hover,
+.admin-auth-input:-webkit-autofill:focus,
+.admin-auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #0f172a;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  caret-color: #0f172a;
+  transition: background-color 9999s ease-out 0s;
+}

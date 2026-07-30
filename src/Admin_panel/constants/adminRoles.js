@@ -10,8 +10,6 @@ export const ADMIN_ROLE_CONFIG = Object.freeze({
     [ADMIN_ROLES.SUPER_ADMIN]: Object.freeze({
         role: ADMIN_ROLES.SUPER_ADMIN,
         displayName: "Super Admin",
-        topBadge: "Admin Panel",
-        panelBadge: "Super Admin Panel",
         heading: "Welcome back, Super Admin",
         subtitle: "Sign in to access the SpeakMate AI Super Admin workspace.",
         emailPlaceholder: "admin@speakmate.ai",
@@ -29,8 +27,6 @@ export const ADMIN_ROLE_CONFIG = Object.freeze({
     [ADMIN_ROLES.SCHOOL_ADMIN]: Object.freeze({
         role: ADMIN_ROLES.SCHOOL_ADMIN,
         displayName: "School Admin",
-        topBadge: "School Admin Panel",
-        panelBadge: "School Admin Panel",
         heading: "Welcome back, School Admin",
         subtitle: "Sign in to access your school management workspace.",
         emailPlaceholder: "school@speakmate.ai",
@@ -48,8 +44,6 @@ export const ADMIN_ROLE_CONFIG = Object.freeze({
     [ADMIN_ROLES.TEACHER]: Object.freeze({
         role: ADMIN_ROLES.TEACHER,
         displayName: "Teacher",
-        topBadge: "Teacher Panel",
-        panelBadge: "Teacher Panel",
         heading: "Welcome back, Teacher",
         subtitle: "Sign in to access your SpeakMate AI teaching workspace.",
         emailPlaceholder: "teacher@speakmate.ai",
