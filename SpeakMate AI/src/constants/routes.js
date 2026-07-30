@@ -6,6 +6,20 @@ export const ROUTES = {
   RESET_PASSWORD: "/reset-password",
   ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
+  ADMIN_DASHBOARD: "/admin-dashboard", // ✅ Only this line
+  ADMIN_USERS: "/admin/users",
+  ADMIN_SCHOOL_USERS: "/admin/school-users",
+  ADMIN_ADD_SCHOOL: "/admin/add-school",
+  ADMIN_TEACHERS: "/admin/teachers",
+  ADMIN_SUBSCRIPTION: "/admin/subscription-billing",
+  ADMIN_PROFILE: "/admin/profile",
+  ADMIN_SETTINGS: "/admin/settings",
+  SCHOOL_ADMIN_DASHBOARD: "/school-admin/dashboard",
+  SCHOOL_ADMIN_STUDENTS: "/school-admin/students",
+  SCHOOL_ADMIN_RESULTS: "/school-admin/results",
+  SCHOOL_ADMIN_ADD_TEACHER: "/school-admin/add-teacher",
+  SCHOOL_ADMIN_PROFILE: "/school-admin/profile",
+  SCHOOL_ADMIN_SETTINGS: "/school-admin/settings",
   AI_CHAT: "/ai-chat",
   CONVERSATION_CHAT: "/ai-chat/session",
   SPEAKING: "/speaking",
@@ -34,4 +48,3 @@ export const ROUTES = {
 };
 
 export default ROUTES;
-

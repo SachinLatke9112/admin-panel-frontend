@@ -41,6 +41,24 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import AdminRoute from "./AdminRoute";
 
+import AdminDashboard from "@admin/pages/AdminDashboard";
+import AllUsers from "@admin/pages/AllUsers";
+import SchoolUsers from "@admin/pages/SchoolUsers";
+import AddSchool from "@admin/pages/AddSchool";
+import Teachers from "@admin/pages/Teachers";
+import SubscriptionBilling from "@admin/pages/SubscriptionBilling";
+import AdminProfile from "@admin/pages/Profile";
+import AdminSettings from "@admin/pages/Settings";
+import AdminLayout from "@admin/layout/AdminLayout";
+
+import SchoolDashboard from "@school-admin/pages/Dashboard";
+import SchoolStudents from "@school-admin/pages/Students";
+import SchoolResults from "@school-admin/pages/Results";
+import AddTeacher from "@school-admin/pages/AddTeacher";
+import SchoolAdminProfile from "@school-admin/pages/Profile";
+import SchoolAdminSettings from "@school-admin/pages/Settings";
+import SchoolLayout from "@school-admin/layout/SchoolLayout";
+
 function PageTransition({ children }) {
   return (
     <motion.div
@@ -407,6 +425,138 @@ export function AppRoutes() {
                   <AdminDashboardPage />
                 </PageTransition>
               </AdminRoute>
+            }
+          />
+        </Route>
+
+        {/* Admin Pages — AdminLayout provides Sidebar + AdminNavbar, independent of AppLayout */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            path={ROUTES.ADMIN_DASHBOARD}
+            element={
+              <PageTransition>
+                <AdminDashboard />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_USERS}
+            element={
+              <PageTransition>
+                <AllUsers />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_SCHOOL_USERS}
+            element={
+              <PageTransition>
+                <SchoolUsers />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_ADD_SCHOOL}
+            element={
+              <PageTransition>
+                <AddSchool />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_TEACHERS}
+            element={
+              <PageTransition>
+                <Teachers />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_SUBSCRIPTION}
+            element={
+              <PageTransition>
+                <SubscriptionBilling />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_PROFILE}
+            element={
+              <PageTransition>
+                <AdminProfile />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_SETTINGS}
+            element={
+              <PageTransition>
+                <AdminSettings />
+              </PageTransition>
+            }
+          />
+        </Route>
+
+        {/* School Admin Pages */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <SchoolLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_DASHBOARD}
+            element={
+              <PageTransition>
+                <SchoolDashboard />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_STUDENTS}
+            element={
+              <PageTransition>
+                <SchoolStudents />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_RESULTS}
+            element={
+              <PageTransition>
+                <SchoolResults />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_ADD_TEACHER}
+            element={
+              <PageTransition>
+                <AddTeacher />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_PROFILE}
+            element={
+              <PageTransition>
+                <SchoolAdminProfile />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_SETTINGS}
+            element={
+              <PageTransition>
+                <SchoolAdminSettings />
+              </PageTransition>
             }
           />
         </Route>
