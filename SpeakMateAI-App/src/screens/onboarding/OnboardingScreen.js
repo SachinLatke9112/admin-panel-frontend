@@ -68,6 +68,19 @@ const LEVELS = [
   { key: 'Fluent', label: 'Fluent', desc: 'Completely fluent, close to native proficiency', rating: 'C2' },
 ];
 
+const SCHOOL_GRADES = [
+  { key: '1st Std', label: '1st Standard', desc: 'Alphabet phonics, colors, animals & simple greetings', icon: 'color-palette-outline' },
+  { key: '2nd Std', label: '2nd Standard', desc: 'Classroom items, daily routines, food & hobbies', icon: 'ice-cream-outline' },
+  { key: '3rd Std', label: '3rd Standard', desc: 'Action verbs, community helpers, time & past stories', icon: 'medkit-outline' },
+  { key: '4th Std', label: '4th Standard', desc: 'Describing places, canteen lunch, healthy habits & directions', icon: 'planet-outline' },
+  { key: '5th Std', label: '5th Standard', desc: 'First day in 5th grade, science projects & story reviews', icon: 'school-outline' },
+  { key: '6th Std', label: '6th Standard', desc: 'Asking teacher questions, school clubs & sports day', icon: 'create-outline' },
+  { key: '7th Std', label: '7th Standard', desc: 'Group discussions, environmental care & movie reviews', icon: 'water-outline' },
+  { key: '8th Std', label: '8th Standard', desc: 'School debates, student council & tech innovations', icon: 'chatbubbles-outline' },
+  { key: '9th Std', label: '9th Standard', desc: 'High school admission interviews & keynote speeches', icon: 'globe-outline' },
+  { key: '10th Std', label: '10th Standard', desc: '10th Board oral exam prep & career roadmaps', icon: 'document-text-outline' },
+];
+
 const INTERESTS = [
   { key: 'Technology', label: 'Technology', icon: 'desktop-outline' },
   { key: 'Business', label: 'Business', icon: 'business-outline' },
@@ -210,6 +223,7 @@ export default function OnboardingScreen({ navigation }) {
   const [language, setLanguage] = useState('English');
   const [aiVoice, setAiVoice] = useState('Friendly');
   const [ageGroup, setAgeGroup] = useState('Professional');
+  const [schoolGrade, setSchoolGrade] = useState('1st Std');
   const [reminderTime, setReminderTime] = useState('Evening');
   const [whyLearning, setWhyLearning] = useState([]);
   const [level, setLevel] = useState('Intermediate');
@@ -220,12 +234,15 @@ export default function OnboardingScreen({ navigation }) {
   const [customPhoto, setCustomPhoto] = useState(null);
   const [avatarCategory, setAvatarCategory] = useState('illustrated');
 
+  const [accountType, setAccountType] = useState('INDIVIDUAL_USER'); // 'INDIVIDUAL_USER' | 'STUDENT'
   // --- Speech & Voice selection ---
   const [availableVoices, setAvailableVoices] = useState([]);
   
   useEffect(() => {
     async function initOnboardingSpeech() {
       try {
+        const storedAccountType = await AsyncStorage.getItem('speakmate_account_type');
+        if (storedAccountType) setAccountType(storedAccountType);
         const voices = await Speech.getAvailableVoicesAsync();
         const enVoices = voices.filter(v => v.language.startsWith('en'));
         setAvailableVoices(enVoices);
@@ -408,14 +425,13 @@ export default function OnboardingScreen({ navigation }) {
       }
       transitionToNext(5);
     } else if (step === 5) {
-      transitionToNext(6);
-    } else if (step === 6) {
+      // Step 5 handles either School Grade (Student) or CEFR Level (Individual)
+      transitionToNext(7);
+    } else if (step === 7) {
       if (interests.length === 0) {
         setError('Please select at least one interest.');
         return;
       }
-      transitionToNext(7);
-    } else if (step === 7) {
       transitionToNext(8);
     } else if (step === 8) {
       transitionToNext(9);
@@ -431,7 +447,9 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const handleBack = () => {
-    if (step > 1) {
+    if (step === 7) {
+      transitionToNext(5);
+    } else if (step > 1) {
       transitionToNext(step - 1);
     }
   };
@@ -458,9 +476,13 @@ export default function OnboardingScreen({ navigation }) {
   const handleFinishOnboarding = async () => {
     setLoading(true);
     try {
+      await AsyncStorage.setItem('speakmate_school_grade', schoolGrade || '1st Std');
+      await AsyncStorage.setItem('speakmate_age_group', ageGroup || 'Professional');
+
       // 1. Sync onboarding details (Avoids any 404 blockages)
       await onboardingService.update({
         englishLevel: level,
+        schoolGrade: schoolGrade || '1st Std',
         learningGoal: whyLearning.join(', '),
         dailyGoalMinutes: parseInt(dailyGoal, 10) || 15,
         nativeLanguage: language,
@@ -702,41 +724,78 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
-            {/* Step 5: Levels */}
+            {/* Step 5: Dynamic Level / Standard Selection */}
             {step === 5 && (
               <View style={styles.stepContent}>
-                <Text style={styles.title}>Current English Level</Text>
-                <Text style={styles.subtitle}>Estimate your current level. This sets your initial practice difficulty.</Text>
-                <View style={styles.cardList}>
-                  {LEVELS.map((lvl) => (
-                    <TouchableOpacity
-                      key={lvl.key}
-                      onPress={() => setLevel(lvl.key)}
-                      style={[
-                        styles.selectCardLarge,
-                        level === lvl.key && styles.selectCardLargeActive,
-                      ]}
-                    >
-                      <View style={styles.levelLeft}>
-                        <View style={styles.levelRatingBox}>
-                          <Text style={styles.levelRatingText}>{lvl.rating}</Text>
-                        </View>
-                        <View style={styles.levelInfo}>
-                          <Text style={styles.selectCardLabel}>{lvl.label}</Text>
-                          <Text style={styles.levelDesc}>{lvl.desc}</Text>
-                        </View>
-                      </View>
-                      {level === lvl.key && (
-                        <Ionicons name="checkmark-circle" size={22} color="#4F46E5" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                {accountType === 'STUDENT' ? (
+                  <>
+                    <Text style={styles.title}>Select Your School Standard</Text>
+                    <Text style={styles.subtitle}>Choose your current school grade. Your speaking scenarios, AI tutor conversations, and lessons will adapt to this level.</Text>
+                    <View style={styles.cardList}>
+                      {SCHOOL_GRADES.map((grd) => (
+                        <TouchableOpacity
+                          key={grd.key}
+                          onPress={() => {
+                            setSchoolGrade(grd.key);
+                            AsyncStorage.setItem('speakmate_school_grade', grd.key);
+                          }}
+                          style={[
+                            styles.selectCardLarge,
+                            schoolGrade === grd.key && styles.selectCardLargeActive,
+                          ]}
+                        >
+                          <View style={styles.levelLeft}>
+                            <View style={styles.levelRatingBox}>
+                              <Ionicons name={grd.icon} size={20} color="#4F46E5" />
+                            </View>
+                            <View style={styles.levelInfo}>
+                              <Text style={styles.selectCardLabel}>{grd.label}</Text>
+                              <Text style={styles.levelDesc}>{grd.desc}</Text>
+                            </View>
+                          </View>
+                          {schoolGrade === grd.key && (
+                            <Ionicons name="checkmark-circle" size={22} color="#4F46E5" />
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.title}>Select Your English Level</Text>
+                    <Text style={styles.subtitle}>Choose your current proficiency level in English.</Text>
+                    <View style={styles.cardList}>
+                      {LEVELS.map((item) => (
+                        <TouchableOpacity
+                          key={item.key}
+                          onPress={() => setLevel(item.key)}
+                          style={[
+                            styles.selectCardLarge,
+                            level === item.key && styles.selectCardLargeActive,
+                          ]}
+                        >
+                          <View style={styles.levelLeft}>
+                            <View style={styles.levelRatingBox}>
+                              <Text style={styles.levelRatingText}>{item.rating}</Text>
+                            </View>
+                            <View style={styles.levelInfo}>
+                              <Text style={styles.selectCardLabel}>{item.label}</Text>
+                              <Text style={styles.levelDesc}>{item.desc}</Text>
+                            </View>
+                          </View>
+                          {level === item.key && (
+                            <Ionicons name="checkmark-circle" size={22} color="#4F46E5" />
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+                )}
               </View>
             )}
 
-            {/* Step 6: Interests */}
-            {step === 6 && (
+            {/* Step 7: Interests */}
+            {step === 7 && (
               <View style={styles.stepContent}>
                 <Text style={styles.title}>What interests you?</Text>
                 <Text style={styles.subtitle}>Select topics you enjoy. We use these for AI practice sessions.</Text>
@@ -773,8 +832,8 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
-            {/* Step 7: Heard About Us */}
-            {step === 7 && (
+            {/* Step 8: Heard About Us */}
+            {step === 8 && (
               <View style={styles.stepContent}>
                 <Text style={styles.title}>Where did you hear about us?</Text>
                 <Text style={styles.subtitle}>Help us understand how you discovered SpeakMateAI.</Text>
@@ -801,8 +860,8 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
-            {/* Step 8: Daily Goal */}
-            {step === 8 && (
+            {/* Step 9: Daily Goal */}
+            {step === 9 && (
               <View style={styles.stepContent}>
                 <Text style={styles.title}>Choose Daily Goal</Text>
                 <Text style={styles.subtitle}>Consistency is key! Set a daily learning goal to build habits.</Text>
@@ -821,37 +880,6 @@ export default function OnboardingScreen({ navigation }) {
                         <Text style={styles.selectCardLabel}>{goal.key} / day</Text>
                       </View>
                       <Text style={styles.goalPillText}>{goal.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* Step 9: Age Group Selection */}
-            {step === 9 && (
-              <View style={styles.stepContent}>
-                <Text style={styles.title}>Select Your Age Group</Text>
-                <Text style={styles.subtitle}>Choose your age bracket so we can personalize AI conversations, topics, and vocabulary level.</Text>
-                <View style={styles.cardList}>
-                  {AGE_GROUPS.map((item) => (
-                    <TouchableOpacity
-                      key={item.key}
-                      onPress={() => setAgeGroup(item.key)}
-                      style={[
-                        styles.selectCardLarge,
-                        ageGroup === item.key && styles.selectCardLargeActive,
-                      ]}
-                    >
-                      <View style={styles.levelLeft}>
-                        <Text style={styles.accentFlag}>{item.icon}</Text>
-                        <View style={styles.levelInfo}>
-                          <Text style={styles.selectCardLabel}>{item.label}</Text>
-                          <Text style={styles.levelDesc}>{item.desc}</Text>
-                        </View>
-                      </View>
-                      {ageGroup === item.key && (
-                        <Ionicons name="checkmark-circle" size={22} color="#4F46E5" />
-                      )}
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -1003,8 +1031,12 @@ export default function OnboardingScreen({ navigation }) {
                     <Text style={styles.summaryValue}>{ageGroup}</Text>
                   </View>
                   <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>📈 Difficulty:</Text>
+                    <Text style={styles.summaryLabel}>📈 English Level:</Text>
                     <Text style={styles.summaryValue}>{level}</Text>
+                  </View>
+                  <View style={styles.summaryItem}>
+                    <Text style={styles.summaryLabel}>🎓 School Standard:</Text>
+                    <Text style={styles.summaryValue}>{schoolGrade}</Text>
                   </View>
                   <View style={styles.summaryItem}>
                     <Text style={styles.summaryLabel}>⏱️ Daily Goal:</Text>

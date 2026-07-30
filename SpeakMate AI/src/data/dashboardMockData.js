@@ -188,4 +188,137 @@ export const dashboardMockData = {
     challenge: "Complete a 5-minute Speaking Drill on Tense Agreement today.",
     reminder: "Practice before 10:00 PM to keep your 7-day streak active!",
   },
+
+  // 9. Charts
+  chartData: {
+    monthlyActivity: [
+      { name: "Jan", speaking: 4, grammar: 2, vocab: 3, listening: 2 },
+      { name: "Feb", speaking: 5, grammar: 3, vocab: 4, listening: 3 },
+      { name: "Mar", speaking: 6, grammar: 4, vocab: 5, listening: 4 },
+      { name: "Apr", speaking: 5, grammar: 5, vocab: 6, listening: 5 },
+      { name: "May", speaking: 8, grammar: 6, vocab: 7, listening: 6 },
+      { name: "Jun", speaking: 9, grammar: 7, vocab: 8, listening: 7 },
+      { name: "Jul", speaking: 10, grammar: 8, vocab: 9, listening: 8 },
+    ],
+    skillDistribution: [
+      { name: "Speaking", value: 35, fill: "#4f46e5" },
+      { name: "Grammar", value: 20, fill: "#059669" },
+      { name: "Vocabulary", value: 25, fill: "#d97706" },
+      { name: "Listening", value: 20, fill: "#0891b2" },
+    ],
+  },
+
+  // 10. Recent Transactions
+  transactions: [
+    {
+      id: "txn-1",
+      title: "Premium Subscription",
+      description: "Monthly Pro Plan renewal",
+      amount: "-$12.99",
+      date: "Today",
+      status: "completed",
+      icon: "✨",
+    },
+    {
+      id: "txn-2",
+      title: "XP Bonus",
+      description: "7-day streak reward",
+      amount: "+50 XP",
+      date: "Yesterday",
+      status: "completed",
+      icon: "🎁",
+    },
+    {
+      id: "txn-3",
+      title: "Grammar Pack",
+      description: "Advanced tenses unlock",
+      amount: "-$4.99",
+      date: "3 days ago",
+      status: "completed",
+      icon: "📚",
+    },
+    {
+      id: "txn-4",
+      title: "Speaking Session",
+      description: "Pronunciation feedback",
+      amount: "+15 XP",
+      date: "4 days ago",
+      status: "completed",
+      icon: "🎙️",
+    },
+  ],
+
+  // 11. Upcoming Tasks / Events
+  upcomingTasks: [
+    {
+      id: "task-1",
+      title: "Speaking Drill",
+      time: "10:00 AM",
+      duration: "15 min",
+      type: "Speaking Practice",
+      color: "bg-sky-500",
+    },
+    {
+      id: "task-2",
+      title: "Grammar Quiz",
+      time: "02:00 PM",
+      duration: "20 min",
+      type: "Grammar Review",
+      color: "bg-emerald-500",
+    },
+    {
+      id: "task-3",
+      title: "AI Chat Session",
+      time: "05:30 PM",
+      duration: "30 min",
+      type: "AI Chat Coach",
+      color: "bg-indigo-500",
+    },
+  ],
+
+  // 12. Performance Summary
+  performanceSummary: {
+    overallScore: 87,
+    speakingScore: 92,
+    grammarScore: 85,
+    vocabularyScore: 78,
+    listeningScore: 88,
+    trend: "+4.2%",
+  },
+
+  // 13. Latest Notifications
+  notifications: [
+    {
+      id: "notif-1",
+      title: "New module available",
+      message: "Business English module is now live.",
+      time: "2 hours ago",
+      read: false,
+      type: "info",
+    },
+    {
+      id: "notif-2",
+      title: "Streak milestone",
+      message: "You've maintained your streak for 7 days!",
+      time: "5 hours ago",
+      read: false,
+      type: "success",
+    },
+    {
+      id: "notif-3",
+      title: "Practice reminder",
+      message: "15 minutes left to keep your streak alive.",
+      time: "8 hours ago",
+      read: true,
+      type: "warning",
+    },
+    {
+      id: "notif-4",
+      title: "Weekly report ready",
+      message: "Your weekly progress report is available.",
+      time: "1 day ago",
+      read: true,
+      type: "info",
+    },
+  ],
 };

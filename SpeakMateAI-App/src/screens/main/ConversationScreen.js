@@ -25,10 +25,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAudioRecorder, RecordingPresets, requestRecordingPermissionsAsync } from 'expo-audio';
 import * as Speech from 'expo-speech';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { speechService, speakingService, settingsService, profileService } from '../../services/appServices';
 import { COLORS } from '../../constants/colors';
 import { VoiceService } from '../../services/VoiceService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import AIAvatar from '../../components/common/AIAvatar';
 import JumpingDotsIndicator from '../../components/common/JumpingDotsIndicator';
 import LevelSegmentedControl from '../../components/common/LevelSegmentedControl';
@@ -112,7 +112,7 @@ export default function ConversationScreen({ navigation, route }) {
   const [statusText, setStatusText] = useState('Waiting for Response');
   const [loading, setLoading] = useState(false);
   const [ending, setEnding] = useState(false);
-  const [chatLevel, setChatLevel] = useState('Beginner');
+  const [chatLevel, setChatLevel] = useState('1st Std');
   const [avatarExpression, setAvatarExpression] = useState(undefined);
   const [hints, setHints] = useState([]);
   const [loadingHints, setLoadingHints] = useState(false);
@@ -181,7 +181,10 @@ export default function ConversationScreen({ navigation, route }) {
         if (onboardingVoice) {
           setOnboardingVoiceStyle(onboardingVoice);
         }
-        if (profile && profile.englishLevel) {
+        const savedGrade = await AsyncStorage.getItem('speakmate_school_grade');
+        if (savedGrade) {
+          setChatLevel(savedGrade);
+        } else if (profile && profile.englishLevel) {
           setChatLevel(profile.englishLevel);
         }
         // Always reset voice speed to 1.0x (Normal Default) when entering a session
@@ -688,11 +691,7 @@ export default function ConversationScreen({ navigation, route }) {
         style={{ marginTop: 2, marginBottom: 6 }}
       />
 
-      {/* Premium Sliding Segmented Control */}
-      <LevelSegmentedControl
-        selectedLevel={chatLevel}
-        onChangeLevel={setChatLevel}
-      />
+      {/* ── Chat Messages ── */}
 
       {/* ── Chat Messages ── */}
       <FlatList

@@ -1,212 +1,267 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import Card from "@components/common/Card";
-import { chatMockData } from "@data/chatMockData";
-import { sendMessage } from "@services/aiChat";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ROUTES from "../constants/routes";
+import { chatService } from "../services/appServices";
 
-const MAX_MESSAGE_LENGTH = 1000;
-
-function formatTime(date) {
-  return new Intl.DateTimeFormat("en", {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-}
+const CHAT_MODES = [
+  { key: "General English", title: "General English", desc: "Improve conversation, general fluency and grammar.", difficulty: "All levels", icon: "💬", color: "#6366F1" },
+  { key: "Grammar Coach", title: "Grammar Coach", desc: "Deep-dive into correct syntax, tenses, and sentence styling.", difficulty: "Beginner", icon: "✍️", color: "#EC4899" },
+  { key: "Vocabulary Builder", title: "Vocabulary Builder", desc: "Enrich expression, learn native synonyms and idioms.", difficulty: "Intermediate", icon: "📚", color: "#F59E0B" },
+  { key: "Daily Conversation", title: "Daily Conversation", desc: "Practice common everyday talking scenarios.", difficulty: "Beginner", icon: "☕", color: "#10B981" },
+  { key: "Interview Coach", title: "Interview Coach", desc: "Practice responses for job interviews and professional feedback.", difficulty: "Advanced", icon: "💼", color: "#8B5CF6" },
+  { key: "Business English", title: "Business English", desc: "Master corporate emails, meetings, and business talk.", difficulty: "Advanced", icon: "📊", color: "#3B82F6" },
+  { key: "Travel English", title: "Travel English", desc: "Learn useful vocabulary for flights, hotels, and directions.", difficulty: "Beginner", icon: "✈️", color: "#06B6D4" },
+  { key: "IELTS Speaking", title: "IELTS Speaking", desc: "Simulate official IELTS speaking parts with targeted scoring.", difficulty: "Advanced", icon: "🏅", color: "#EF4444" },
+  { key: "Storytelling", title: "Storytelling", desc: "Construct narratives, descriptive tales, and explain events.", difficulty: "Intermediate", icon: "📖", color: "#10B981" },
+  { key: "Debate", title: "Debate", desc: "Discuss controversial topics, formulate arguments, and reply.", difficulty: "Advanced", icon: "⚖️", color: "#6366F1" },
+  { key: "Free Chat", title: "Free Chat", desc: "Open-ended dialogue with your tutor on any topic.", difficulty: "All levels", icon: "✨", color: "#F59E0B" },
+];
 
 export function AiChat() {
-  const [messages, setMessages] = useState(chatMockData.starterMessages);
-  const [draft, setDraft] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const endRef = useRef(null);
+  const navigate = useNavigate();
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [renameTargetSession, setRenameTargetSession] = useState(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [renaming, setRenaming] = useState(false);
+
+  const accountType = localStorage.getItem("speakmate_account_type") || "INDIVIDUAL_USER";
+  const isStudent = accountType === "STUDENT";
+  const [userAgeGroup, setUserAgeGroup] = useState("Professional");
+  const [userGrade, setUserGrade] = useState("1st Std");
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const data = await chatService.history().catch(() => []);
+      setHistory(data || []);
+      const savedGrade = localStorage.getItem("speakmate_school_grade");
+      const savedAge = localStorage.getItem("speakmate_age_group");
+      if (savedGrade) setUserGrade(savedGrade);
+      if (savedAge) setUserAgeGroup(savedAge);
+    } catch (e) {
+      console.warn("Failed to load chat history", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    fetchHistory();
+  }, []);
 
-  const canSend = useMemo(() => draft.trim().length > 0 && draft.trim().length <= MAX_MESSAGE_LENGTH, [draft]);
+  const handleStartSession = (modeKey) => {
+    const sessionId = Date.now().toString();
+    const title = `${modeKey} Session`;
+    navigate(`${ROUTES.CONVERSATION_CHAT}?sessionId=${sessionId}&mode=${encodeURIComponent(modeKey)}&title=${encodeURIComponent(title)}`);
 
-  const handleSend = async () => {
-    const value = draft.trim();
-    if (!value || isTyping || value.length > MAX_MESSAGE_LENGTH) {
-      return;
+    // Asynchronously trigger backend session start in background without blocking UI
+    chatService.start(modeKey).catch(() => {});
+  };
+
+  const handleResumeSession = (session) => {
+    navigate(`${ROUTES.CONVERSATION_CHAT}?sessionId=${session.id}&mode=${encodeURIComponent(session.mode)}&title=${encodeURIComponent(session.title)}`);
+  };
+
+  const handleDeleteSession = async (id, e) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to permanently delete this chat session and its full message history?")) {
+      try {
+        await chatService.deleteSession(id);
+        setHistory((prev) => prev.filter((s) => s.id !== id));
+      } catch (e) {
+        console.error("Delete session error:", e);
+      }
     }
+  };
 
-    const userMessage = {
-      id: Date.now(),
-      role: "user",
-      content: value,
-      timestamp: new Date(),
-    };
-
-    setMessages((current) => [...current, userMessage]);
-    setDraft("");
-    setIsTyping(true);
-
+  const handleRenameSession = async (e) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !renameTargetSession) return;
+    setRenaming(true);
     try {
-      const response = await sendMessage(value);
-      const assistantMessage = {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: response?.data?.reply || "I am here to help you practice.",
-        timestamp: new Date(),
-      };
-
-      setMessages((current) => [...current, assistantMessage]);
-    } catch {
-      const fallbackMessage = {
-        id: Date.now() + 2,
-        role: "assistant",
-        content: "I had trouble responding right now. Please try again in a moment.",
-        timestamp: new Date(),
-      };
-      setMessages((current) => [...current, fallbackMessage]);
+      await chatService.renameSession(renameTargetSession.id, newTitle.trim());
+      setHistory((prev) =>
+        prev.map((s) => (s.id === renameTargetSession.id ? { ...s, title: newTitle.trim() } : s))
+      );
+      setRenameTargetSession(null);
+      setNewTitle("");
+    } catch (e) {
+      console.error("Rename session error:", e);
     } finally {
-      setIsTyping(false);
+      setRenaming(false);
     }
   };
 
-  const handlePromptSelect = (prompt) => {
-    setDraft(prompt);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      void handleSend();
-    }
-  };
+  const filteredModes = CHAT_MODES.filter((m) =>
+    m.title.toLowerCase().includes(searchQuery.toLowerCase()) || m.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-180px)] max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className="mb-4"
-      >
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-          AI Chat Coach
-        </p>
-        <h1 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">
-          Practice conversations with your AI coach
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-          Start a conversation, refine your phrasing, and build confidence with guided feedback.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">
-            {chatMockData.title}
+    <div className="w-full space-y-6">
+      {/* Top Banner */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#312E81] text-white shadow-xl space-y-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-white/10 uppercase tracking-wider">
+            {isStudent ? `24/7 AI Language Tutor · Standard: ${userGrade}` : `24/7 AI Language Tutor · ${userAgeGroup} Profile`}
           </span>
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-            Topic: {chatMockData.topic}
-          </span>
-        </div>
-      </motion.div>
-
-      <Card className="flex flex-1 flex-col overflow-hidden border-slate-200 bg-white shadow-lg">
-        <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:p-4">
-          {chatMockData.suggestedPrompts.map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              onClick={() => handlePromptSelect(prompt)}
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 transition hover:border-indigo-500 hover:text-indigo-600"
-            >
-              {prompt}
-            </button>
-          ))}
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">AI Chat Coach</h1>
+          <p className="text-xs sm:text-sm text-indigo-200 font-medium">
+            Practice written & spoken conversations with immediate AI corrections, grammar advice, and vocabulary hints.
+          </p>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4 sm:p-6">
-          {messages.length === 0 ? (
-            <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
-              Start your first conversation
-            </div>
-          ) : (
-            messages.map((message) => {
-              const isUser = message.role === "user";
+        <button
+          onClick={() => handleStartSession("Free Chat")}
+          className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#6c63ff] to-[#ff6584] text-white font-extrabold text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform shrink-0"
+        >
+          ✨ Launch New Free Chat
+        </button>
+      </div>
 
-              return (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${isUser ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`flex max-w-[85%] items-end gap-2 sm:max-w-[75%] ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${isUser ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700"}`}>
-                      {isUser ? "You" : "AI"}
-                    </div>
-                    <div
-                      className={`rounded-2xl px-4 py-3 shadow-sm ${
-                        isUser
-                          ? "bg-indigo-600 text-white"
-                          : "border border-slate-200 bg-white text-slate-700"
-                      }`}
-                    >
-                      <p className="whitespace-pre-wrap text-sm leading-6">
-                        {message.content}
-                      </p>
-                      <p className={`mt-2 text-[11px] ${isUser ? "text-indigo-100" : "text-slate-400"}`}>
-                        {formatTime(message.timestamp)}
-                      </p>
+      {/* Search Input */}
+      <div className="glass-card p-5 rounded-3xl">
+        <div className="relative">
+          <svg className="w-5 h-5 absolute left-3.5 top-3 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search AI tutor modes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-xs sm:text-sm font-semibold text-[var(--text-primary)] focus:outline-none focus:border-[#6c63ff]"
+          />
+        </div>
+      </div>
+
+      {/* Recent Chat Conversations Row */}
+      {history.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-[var(--text-primary)]">Recent Chat Sessions</h2>
+            <span className="text-xs font-bold text-[#6c63ff]">{history.length} active threads</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {history.slice(0, 6).map((session) => (
+              <div
+                key={session.id}
+                onClick={() => handleResumeSession(session)}
+                className="glass-card glass-card-hover p-5 rounded-3xl space-y-3 flex flex-col justify-between cursor-pointer group"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#6c63ff]/20 text-[#6c63ff]">
+                      {session.mode || "General"}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRenameTargetSession(session);
+                          setNewTitle(session.title);
+                        }}
+                        className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        title="Rename"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteSession(session.id, e)}
+                        className="p-1 text-[var(--text-secondary)] hover:text-red-500"
+                        title="Delete"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
-                </motion.div>
-              );
-            })
-          )}
+                  <h3 className="font-extrabold text-base text-[var(--text-primary)] group-hover:text-[#6c63ff] transition-colors truncate">
+                    {session.title || "Conversation Thread"}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)] font-medium truncate">
+                    {session.lastMessage || "Click to resume conversation with AI tutor..."}
+                  </p>
+                </div>
 
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:-0.2s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:-0.1s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-500" />
+                <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-bold text-[#6c63ff]">
+                  <span>Resume Conversation</span>
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </div>
               </div>
-            </div>
-          )}
-
-          <div ref={endRef} />
+            ))}
+          </div>
         </div>
+      )}
 
-        <div className="border-t border-slate-200 bg-white p-3 sm:p-4">
-          <label htmlFor="chat-input" className="sr-only">
-            Type your message
-          </label>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <textarea
-              id="chat-input"
-              rows={2}
-              value={draft}
-              onChange={(event) => {
-                const nextValue = event.target.value.slice(0, MAX_MESSAGE_LENGTH);
-                setDraft(nextValue);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask for help with a conversation or speaking topic..."
-              className="min-h-[84px] flex-1 rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white"
-            />
-            <button
-              type="button"
-              onClick={() => void handleSend()}
-              disabled={!canSend || isTyping}
-              className="rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+      {/* Available AI Chat Modes Grid */}
+      <div className="space-y-3">
+        <h2 className="text-xl font-extrabold text-[var(--text-primary)]">Choose AI Tutor Mode</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredModes.map((mode) => (
+            <div
+              key={mode.key}
+              onClick={() => handleStartSession(mode.key)}
+              className="glass-card glass-card-hover p-5 rounded-3xl space-y-3 flex flex-col justify-between cursor-pointer group"
             >
-              {isTyping ? "Thinking..." : "Send"}
-            </button>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-            <p>Press Enter to send. Use Shift + Enter for a new line.</p>
-            <p className={draft.length >= MAX_MESSAGE_LENGTH ? "font-semibold text-rose-500" : ""}>
-              {draft.length}/{MAX_MESSAGE_LENGTH}
-            </p>
-          </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl p-2.5 rounded-2xl bg-[var(--bg-elevated)]">{mode.icon}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[10px] font-black">
+                    {mode.difficulty}
+                  </span>
+                </div>
+
+                <h3 className="font-extrabold text-base text-[var(--text-primary)] group-hover:text-[#6c63ff] transition-colors">
+                  {mode.title}
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{mode.desc}</p>
+              </div>
+
+              <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-bold text-[var(--text-secondary)]">
+                <span>AI Language Tutor</span>
+                <span className="text-[#6c63ff] font-extrabold group-hover:translate-x-1 transition-transform">Start Chat →</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </Card>
-    </section>
+      </div>
+
+      {/* Rename Modal */}
+      {renameTargetSession && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <form onSubmit={handleRenameSession} className="glass-card p-6 rounded-3xl max-w-md w-full space-y-4">
+            <h3 className="text-lg font-extrabold text-[var(--text-primary)]">Rename Chat Session</h3>
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Enter new conversation title..."
+              className="w-full p-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-sm font-semibold text-[var(--text-primary)] focus:outline-none focus:border-[#6c63ff]"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setRenameTargetSession(null)}
+                className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] text-xs font-bold text-[var(--text-secondary)]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={renaming || !newTitle.trim()}
+                className="px-5 py-2 rounded-xl bg-[#6c63ff] text-white text-xs font-extrabold shadow-md disabled:opacity-50"
+              >
+                {renaming ? "Saving..." : "Save Title"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
   );
 }
 

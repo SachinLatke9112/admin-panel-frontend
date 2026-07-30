@@ -1,4 +1,4 @@
-# --- Backend (Spring Boot) ---
+# Backend
 SpeakMateAI/target/
 SpeakMateAI/.settings/
 SpeakMateAI/.classpath
@@ -6,50 +6,86 @@ SpeakMateAI/.project
 SpeakMateAI/.factorypath
 SpeakMateAI/*.log
 
-# --- Frontend (React Native / Expo) ---
+# React Native / Expo
 SpeakMateAI-App/node_modules/
 SpeakMateAI-App/.expo/
 SpeakMateAI-App/android/
 SpeakMateAI-App/ios/
 SpeakMateAI-App/web-build/
 SpeakMateAI-App/dist/
-SpeakMateAI-App/*.jks
-SpeakMateAI-App/*.p8
-SpeakMateAI-App/*.p12
-SpeakMateAI-App/*.mobileprovision
-SpeakMateAI-App/npm-debug.log*
-SpeakMateAI-App/yarn-debug.log*
-SpeakMateAI-App/yarn-error.log*
 
-# --- Web Landing/Admin Panel ---
-SpeakMate AI/node_modules/
-SpeakMate AI/dist/
-SpeakMate AI/.env
+# Web
+node_modules/
+dist/
+dist-ssr/
 
-# --- IDEs and Editor configurations ---
-.metadata/
-*/.metadata/
+# Environment
+.env
+.env.*
+!.env.example
+*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.vscode-test
 .idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.metadata/
 .DS_Store
 
-# --- Environment & Credentials ---
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-SpeakMateAI-App/.env
-SpeakMateAI-App/.env.local
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# --- Temporary/Output Files ---
-*.txt
-*.docx
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Build
+.next/
+out/
+.nuxt/
+.output/
+.svelte-kit/
+.cache/
+.parcel-cache/
+.temp/
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Package managers
+.npm/
+.pnpm-store/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Misc
+.stylelintcache
+.eslintcache
+.node_repl_history
+*.tgz
+.lock-wscript
+.serverless/
+.firebase/
+.fusebox/
+.dynamodb/
+.tern-port
+
+# Project specific
+ADMIN_PANEL_MASTER_DOCUMENTATION.md
 SpeakMate_AI_SRS_v2.docx
 backend_all_code.txt
 frontend_all_code.txt

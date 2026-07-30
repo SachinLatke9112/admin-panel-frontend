@@ -48,10 +48,14 @@
         }
       ]
     ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "eas": {
-        "projectId": "745b51c7-9799-415a-89cd-db8e7f673c1b"
+        "projectId": "9d71559f-c85f-4610-9cc3-8313b69b5c2b"
       }
-    }
+    },
+    "owner": "dnyanesh1234"
   }
 }

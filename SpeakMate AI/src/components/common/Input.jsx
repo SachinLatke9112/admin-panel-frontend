@@ -11,12 +11,12 @@ export function Input({ label, error, className = "", type, ...props }) {
 
   return (
     <label className="block">
-      {label && <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>}
+      {label && <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>}
 
       <div className="relative">
         <input
           type={inputType}
-          className={`h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 ${
+          className={`h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:ring-indigo-500/20 ${
             isPassword ? "pr-11" : ""
           } ${className}`}
           {...props}
@@ -27,7 +27,7 @@ export function Input({ label, error, className = "", type, ...props }) {
             type="button"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+            className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-4 focus:ring-indigo-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:border-indigo-500 dark:hover:bg-slate-700"
           >
             {showPassword ? (
               // Eye open

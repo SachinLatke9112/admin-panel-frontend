@@ -35,6 +35,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 		User user = userRepository.findByEmail(authentication.getName())
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
+		String resolvedGrade = resolveGrade(request.getSchoolGrade(), request.getEnglishLevel());
+
 		Onboarding onboarding = Onboarding.builder().user(user)
 				.englishLevel(request.getEnglishLevel() != null ? request.getEnglishLevel() : "Beginner")
 				.learningGoal(request.getLearningGoal() != null ? request.getLearningGoal() : "Improve English speaking skills")
@@ -43,6 +45,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 				.preferredLearningTime(request.getPreferredLearningTime() != null ? request.getPreferredLearningTime() : "Morning")
 				.interests(request.getInterests() != null ? request.getInterests() : "General")
 				.ageGroup(request.getAgeGroup() != null ? request.getAgeGroup() : "Professional")
+				.schoolGrade(resolvedGrade)
 				.onboardingCompleted(request.getOnboardingCompleted() != null ? request.getOnboardingCompleted() : false).build();
 
 		Onboarding savedOnboarding = onboardingRepository.save(onboarding);
@@ -72,10 +75,22 @@ public class OnboardingServiceImpl implements OnboardingService {
 							.preferredLearningTime("Morning")
 							.interests("General")
 							.ageGroup("Professional")
+							.schoolGrade("1st Std")
 							.onboardingCompleted(false)
 							.build();
 					return onboardingRepository.save(defaultOnboarding);
 				});
+
+		// Auto-populate empty database schoolGrade column from englishLevel for existing users
+		if (onboarding.getSchoolGrade() == null || onboarding.getSchoolGrade().trim().isEmpty()) {
+			onboarding.setSchoolGrade(resolveGrade(onboarding.getSchoolGrade(), onboarding.getEnglishLevel()));
+			onboarding = onboardingRepository.save(onboarding);
+		}
+
+		if (user.getSchoolGrade() == null || user.getSchoolGrade().trim().isEmpty()) {
+			user.setSchoolGrade(resolveGrade(user.getSchoolGrade(), user.getEnglishLevel()));
+			userRepository.save(user);
+		}
 
 		return mapToResponse(onboarding);
 	}
@@ -100,6 +115,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 							.preferredLearningTime("Morning")
 							.interests("General")
 							.ageGroup("Professional")
+							.schoolGrade("1st Std")
 							.onboardingCompleted(false)
 							.build();
 					return onboardingRepository.save(defaultOnboarding);
@@ -112,6 +128,10 @@ public class OnboardingServiceImpl implements OnboardingService {
 		if (request.getPreferredLearningTime() != null) onboarding.setPreferredLearningTime(request.getPreferredLearningTime());
 		if (request.getInterests() != null) onboarding.setInterests(request.getInterests());
 		if (request.getAgeGroup() != null) onboarding.setAgeGroup(request.getAgeGroup());
+		
+		String resolvedGrade = resolveGrade(request.getSchoolGrade(), request.getEnglishLevel());
+		onboarding.setSchoolGrade(resolvedGrade);
+
 		if (request.getOnboardingCompleted() != null) onboarding.setOnboardingCompleted(request.getOnboardingCompleted());
 
 		Onboarding updatedOnboarding = onboardingRepository.save(onboarding);
@@ -135,12 +155,14 @@ public class OnboardingServiceImpl implements OnboardingService {
 	}
 
 	private OnboardingResponse mapToResponse(Onboarding onboarding) {
+		String effectiveGrade = resolveGrade(onboarding.getSchoolGrade(), onboarding.getEnglishLevel());
 
 		return OnboardingResponse.builder().id(onboarding.getId()).englishLevel(onboarding.getEnglishLevel())
 				.learningGoal(onboarding.getLearningGoal()).dailyGoalMinutes(onboarding.getDailyGoalMinutes())
 				.nativeLanguage(onboarding.getNativeLanguage())
 				.preferredLearningTime(onboarding.getPreferredLearningTime()).interests(onboarding.getInterests())
 				.ageGroup(onboarding.getAgeGroup())
+				.schoolGrade(effectiveGrade)
 				.onboardingCompleted(onboarding.getOnboardingCompleted()).createdAt(onboarding.getCreatedAt())
 				.updatedAt(onboarding.getUpdatedAt()).build();
 	}
@@ -154,8 +176,22 @@ public class OnboardingServiceImpl implements OnboardingService {
 		if (request.getPreferredVoice() != null) user.setPreferredVoice(request.getPreferredVoice());
 		if (request.getPreferredAccent() != null) user.setPreferredAccent(request.getPreferredAccent());
 		if (request.getAgeGroup() != null) user.setAgeGroup(request.getAgeGroup());
+		
+		String resolvedGrade = resolveGrade(request.getSchoolGrade(), request.getEnglishLevel());
+		user.setSchoolGrade(resolvedGrade);
+
 		if (request.getInterests() != null) user.setInterests(request.getInterests());
 		if (request.getOnboardingCompleted() != null) user.setOnboardingCompleted(Boolean.TRUE.equals(request.getOnboardingCompleted()));
 		userRepository.save(user);
+	}
+
+	private String resolveGrade(String schoolGrade, String englishLevel) {
+		if (schoolGrade != null && !schoolGrade.trim().isEmpty()) {
+			return schoolGrade;
+		}
+		if (englishLevel != null && !englishLevel.trim().isEmpty()) {
+			return englishLevel;
+		}
+		return "1st Std";
 	}
 }
