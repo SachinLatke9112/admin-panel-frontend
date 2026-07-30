@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    SpeakMate AI — Design Tokens
    Brand: #6c63ff (primary) / #ff6584 (accent)

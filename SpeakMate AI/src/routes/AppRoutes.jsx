@@ -3,7 +3,6 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import AppLayout from "@components/layout/AppLayout";
 import AuthLayout from "@components/layout/AuthLayout";
-import AdminLayout from "@components/admin/AdminLayout";
 
 import ROUTES from "@constants/routes";
 
