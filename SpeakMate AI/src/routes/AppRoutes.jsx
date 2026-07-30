@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import AppLayout from "@components/layout/AppLayout";
 import AuthLayout from "@components/layout/AuthLayout";
+import SchoolAdminLayout from "@components/layout/SchoolAdminLayout";
 
 import ROUTES from "@constants/routes";
 
@@ -23,6 +24,13 @@ import Register from "@pages/Register";
 import Settings from "@pages/Settings";
 import SpeakingPractice from "@pages/SpeakingPractice";
 import Vocabulary from "@pages/Vocabulary";
+import SchoolUserList from "@pages/SchoolUser/SchoolUserList";
+import StudentOverview from "@pages/SchoolUser/StudentOverview";
+import ResultsDashboard from "@pages/SchoolResults/ResultsDashboard";
+import StudentResultDetails from "@pages/SchoolResults/StudentResultDetails";
+
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
 import ConversationChat from "@pages/ConversationChat";
 import ConversationSession from "@pages/ConversationSession";
 import SpeakingSummary from "@pages/SpeakingSummary";
@@ -64,6 +72,7 @@ function PageTransition({ children }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
       transition={{ duration: 0.2, ease: "easeOut" }}
     >
       {children}
@@ -77,6 +86,7 @@ export function AppRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Public Pages */}
         {/* Public Marketing Landing */}
         <Route element={<AppLayout />}>
           <Route
@@ -84,6 +94,7 @@ export function AppRoutes() {
             element={
               <PublicRoute>
                 <PageTransition>
+                  <LandingPage />
                   <Navigate to={ROUTES.ADMIN_USERS} replace />
                 </PageTransition>
               </PublicRoute>
@@ -125,6 +136,9 @@ export function AppRoutes() {
               </PublicRoute>
             }
           />
+        </Route>
+
+        {/* Protected Pages */}
 
           <Route
             path={ROUTES.RESET_PASSWORD}
@@ -338,6 +352,44 @@ export function AppRoutes() {
               </ProtectedRoute>
             }
           />
+        </Route>
+
+        {/* School Admin Routes (Without public Navbar/Header) */}
+        <Route element={<SchoolAdminLayout />}>
+          {/* School User Routes */}
+          <Route
+            path={ROUTES.SCHOOL_USERS}
+            element={
+              <PageTransition>
+                <SchoolUserList />
+              </PageTransition>
+            }
+          />
+
+          <Route
+            path={ROUTES.SCHOOL_USER_DETAILS}
+            element={
+              <PageTransition>
+                <StudentOverview />
+              </PageTransition>
+            }
+          />
+
+          {/* School Results Routes */}
+          <Route
+            path={ROUTES.SCHOOL_RESULTS}
+            element={
+              <PageTransition>
+                <ResultsDashboard />
+              </PageTransition>
+            }
+          />
+
+          <Route
+            path={ROUTES.SCHOOL_RESULT_DETAILS}
+            element={
+              <PageTransition>
+                <StudentResultDetails />
 
           <Route
             path={ROUTES.HELP}
