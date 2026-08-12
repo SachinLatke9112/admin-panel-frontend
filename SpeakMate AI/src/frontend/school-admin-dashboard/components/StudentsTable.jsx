@@ -1,4 +1,4 @@
-export function StudentsTable({ students, onEdit, onDelete }) {
+export function StudentsTable({ students, onRowClick, onEdit, onDelete }) {
     if (!students.length) {
         return (
             <div className="flex flex-col items-center justify-center gap-1 py-16 text-center">
@@ -17,6 +17,7 @@ export function StudentsTable({ students, onEdit, onDelete }) {
                     <tr className="border-b border-[var(--border-subtle)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                         <th className="px-4 py-3 sm:px-5">Student</th>
                         <th className="px-4 py-3 sm:px-5">Standard</th>
+                        <th className="px-4 py-3 sm:px-5">Assigned Teacher</th>
                         <th className="px-4 py-3 sm:px-5">Roll No.</th>
                         <th className="px-4 py-3 sm:px-5">Status</th>
                         <th className="px-4 py-3 text-right sm:px-5">Actions</th>
@@ -26,7 +27,8 @@ export function StudentsTable({ students, onEdit, onDelete }) {
                     {students.map((student) => (
                         <tr
                             key={student.id}
-                            className="border-b border-[var(--border-subtle)] transition last:border-0 hover:bg-[var(--bg-hover)]"
+                            onClick={() => onRowClick && onRowClick(student)}
+                            className="cursor-pointer border-b border-[var(--border-subtle)] transition last:border-0 hover:bg-[var(--bg-hover)]"
                         >
                             <td className="px-4 py-3 sm:px-5">
                                 <div className="flex min-w-0 items-center gap-3">
@@ -44,6 +46,11 @@ export function StudentsTable({ students, onEdit, onDelete }) {
                                 </div>
                             </td>
                             <td className="px-4 py-3 text-[var(--text-secondary)] sm:px-5">{student.standard}th</td>
+                            <td className="px-4 py-3 text-[var(--text-secondary)] sm:px-5">
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500">
+                                    {student.assignedTeacher || "Unassigned"}
+                                </span>
+                            </td>
                             <td className="px-4 py-3 text-[var(--text-secondary)] sm:px-5">{student.rollNo}</td>
                             <td className="px-4 py-3 sm:px-5">
                                 <span
@@ -68,7 +75,7 @@ export function StudentsTable({ students, onEdit, onDelete }) {
                                     <button
                                         type="button"
                                         aria-label={`Edit ${student.name}`}
-                                        onClick={() => onEdit(student)}
+                                        onClick={(e) => { e.stopPropagation(); onEdit(student); }}
                                         className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)]"
                                     >
                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -78,7 +85,7 @@ export function StudentsTable({ students, onEdit, onDelete }) {
                                     <button
                                         type="button"
                                         aria-label={`Delete ${student.name}`}
-                                        onClick={() => onDelete(student)}
+                                        onClick={(e) => { e.stopPropagation(); onDelete(student); }}
                                         className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-rose-500/10 hover:text-rose-500"
                                     >
                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

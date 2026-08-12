@@ -1,4 +1,4 @@
-export function ResultsTable({ results }) {
+export function ResultsTable({ results, onRowClick }) {
     if (!results.length) {
         return (
             <div className="flex flex-col items-center justify-center gap-1 py-16 text-center">
@@ -27,7 +27,8 @@ export function ResultsTable({ results }) {
                     {results.map((r) => (
                         <tr
                             key={r.id}
-                            className="border-b border-[var(--border-subtle)] transition last:border-0 hover:bg-[var(--bg-hover)]"
+                            onClick={() => onRowClick && onRowClick(r)}
+                            className="cursor-pointer border-b border-[var(--border-subtle)] transition last:border-0 hover:bg-[var(--bg-hover)]"
                         >
                             <td className="px-4 py-3 sm:px-5">
                                 <p className="font-semibold text-[var(--text-primary)]">{r.studentName}</p>

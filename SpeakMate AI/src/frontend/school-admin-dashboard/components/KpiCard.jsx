@@ -64,8 +64,9 @@ export function KpiCard({ kpi, index = 0 }) {
     const Icon = resolveIcon(safeKpi.icon);
     const isUp = safeKpi.trend === "up";
     const TrendIcon = isUp ? ArrowUpRight : ArrowDownRight;
-    const numericValue = typeof safeKpi.value === "number" ? safeKpi.value : Number(safeKpi.value) || 0;
-    const formattedValue = `${safeKpi.prefix}${numericValue.toLocaleString("en-US")}`;
+    const formattedValue = typeof safeKpi.value === "string" 
+        ? `${safeKpi.prefix}${safeKpi.value}`
+        : `${safeKpi.prefix}${(safeKpi.value || 0).toLocaleString("en-US")}`;
 
     return (
         <motion.div
