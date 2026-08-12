@@ -11,8 +11,8 @@ export function DeleteUserDialog({ isOpen, user, onClose, onConfirm }) {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Delete user" maxWidth="max-w-sm">
-            <p className="text-sm text-slate-600">
-                Are you sure you want to delete <span className="font-semibold text-slate-900">{user.name}</span>?
+            <p className="text-sm text-[var(--text-secondary)]">
+                Are you sure you want to delete <span className="font-semibold text-[var(--text-primary)]">{user.name}</span>?
                 This action cannot be undone.
             </p>
 

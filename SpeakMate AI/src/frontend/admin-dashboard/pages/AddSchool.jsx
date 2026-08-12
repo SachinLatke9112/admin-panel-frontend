@@ -5,6 +5,7 @@ import { Building2 } from "lucide-react";
 import Button from "@components/common/Button";
 import Input from "@components/common/Input";
 import SectionCard from "@admin/components/SectionCard";
+import { useAdminSchools } from "@admin/hooks/useAdminSchools";
 
 const EMPTY_FORM = {
     schoolName: "",
@@ -19,6 +20,7 @@ const EMPTY_FORM = {
 };
 
 export function AddSchool() {
+    const { addSchool } = useAdminSchools();
     const [form, setForm] = useState(EMPTY_FORM);
     const [errors, setErrors] = useState({});
     const [invitationSent, setInvitationSent] = useState(false);
@@ -60,6 +62,10 @@ export function AddSchool() {
     const handleSubmit = (event) => {
         event.preventDefault();
         if (!validate() || !invitationSent) return;
+        
+        // Add the school globally
+        addSchool(form.schoolName.trim());
+        
         alert("School created successfully！");
         setForm(EMPTY_FORM);
         setInvitationSent(false);

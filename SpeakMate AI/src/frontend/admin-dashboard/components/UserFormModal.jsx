@@ -12,13 +12,15 @@ const EMPTY_FORM = {
     name: "",
     email: "",
     role: "Learner",
-    status: "active",
     userType: USER_TYPE_OPTIONS[0],
     standard: STANDARD_OPTIONS[0],
+    assignedTeacher: "",
+    rollNo: "",
+    schoolName: "",
 };
 
 const SELECT_CLASSES =
-    "h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+    "h-11 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/20";
 
 /**
  * admin-dashboard/components/UserFormModal.jsx
@@ -37,7 +39,7 @@ const STANDARD_LABEL = (std) => {
     const suffix = s[(v - 20) % 10] || s[v] || s[0];
     return `${std}${suffix} Standard`;
 };
-export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSubmit }) {
+export function UserFormModal({ isOpen, mode = "add", initialData, teachers = [], schools = [], isStudentForm = false, onClose, onSubmit }) {
     const [form, setForm] = useState(EMPTY_FORM);
     const [errors, setErrors] = useState({});
 
@@ -46,13 +48,15 @@ export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSu
         setForm({
             name: initialData?.name ?? "",
             email: initialData?.email ?? "",
-            role: "Learner",
             status: initialData?.status ?? "active",
-            userType: initialData?.userType || USER_TYPE_OPTIONS[0],
+            userType: initialData?.userType || (isStudentForm ? "school" : USER_TYPE_OPTIONS[0]),
             standard: initialData?.standard || STANDARD_OPTIONS[0],
+            assignedTeacher: initialData?.assignedTeacher || (teachers.length > 0 ? teachers[0].name : ""),
+            rollNo: initialData?.rollNo ?? "",
+            schoolName: initialData?.schoolName || (schools.length > 0 ? schools[0] : ""),
         });
         setErrors({});
-    }, [isOpen, initialData]);
+    }, [isOpen, initialData, teachers, schools]);
 
     const handleChange = (field) => (event) => {
         const value = field === "standard" ? Number(event.target.value) : event.target.value;
@@ -103,16 +107,26 @@ export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSu
                     error={errors.email}
                 />
 
+                {isStudentForm && (
+                    <Input
+                        label="Roll Number"
+                        placeholder="e.g. 10A01"
+                        value={form.rollNo}
+                        onChange={handleChange("rollNo")}
+                        error={errors.rollNo}
+                    />
+                )}
+
                 <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">Role</span>
-                        <span className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
+                        <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Role</span>
+                        <span className="flex h-11 w-full items-center rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 text-sm text-[var(--text-primary)]">
                             Learner
                         </span>
                     </label>
 
                     <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">Status</span>
+                        <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Status</span>
                         <select value={form.status} onChange={handleChange("status")} className={SELECT_CLASSES}>
                             {USER_STATUS_OPTIONS.map((status) => (
                                 <option key={status} value={status}>
@@ -125,7 +139,7 @@ export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSu
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">User Type</span>
+                        <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">User Type</span>
                         <select value={form.userType} onChange={handleChange("userType")} className={SELECT_CLASSES}>
                             {USER_TYPE_OPTIONS.map((type) => (
                                 <option key={type} value={type}>
@@ -136,7 +150,7 @@ export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSu
                     </label>
 
                     <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">
+                        <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
                             Standard {form.userType === "school" ? "" : "(optional)"}
                         </span>
                         <select
@@ -153,6 +167,48 @@ export function UserFormModal({ isOpen, mode = "add", initialData, onClose, onSu
                         </select>
                     </label>
                 </div>
+
+                {form.userType === "school" && schools.length > 0 && (
+                    <div className="grid gap-4 sm:grid-cols-1">
+                        <label className="block">
+                            <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                                Assign School
+                            </span>
+                            <select
+                                value={form.schoolName}
+                                onChange={handleChange("schoolName")}
+                                className={SELECT_CLASSES}
+                            >
+                                {schools.map((school) => (
+                                    <option key={school} value={school}>
+                                        {school}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                )}
+
+                {teachers.length > 0 && (
+                    <div className="grid gap-4 sm:grid-cols-1">
+                        <label className="block">
+                            <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                                Assign Teacher
+                            </span>
+                            <select
+                                value={form.assignedTeacher}
+                                onChange={handleChange("assignedTeacher")}
+                                className={SELECT_CLASSES}
+                            >
+                                {teachers.map((t) => (
+                                    <option key={t.id} value={t.name}>
+                                        {t.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                )}
 
                 <div className="mt-2 flex justify-end gap-3">
                     <Button type="button" variant="secondary" onClick={onClose}>
