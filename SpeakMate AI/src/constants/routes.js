@@ -20,6 +20,8 @@ export const ROUTES = {
   SCHOOL_ADMIN_DASHBOARD: "/school-admin/dashboard",
   SCHOOL_ADMIN_STUDENTS: "/school-admin/students",
   SCHOOL_ADMIN_RESULTS: "/school-admin/results",
+  SCHOOL_ADMIN_INSIGHTS: "/school-admin/insights",
+  SCHOOL_ADMIN_TEACHERS: "/school-admin/teachers",
   SCHOOL_ADMIN_ADD_TEACHER: "/school-admin/add-teacher",
   SCHOOL_ADMIN_PROFILE: "/school-admin/profile",
   SCHOOL_ADMIN_SETTINGS: "/school-admin/settings",

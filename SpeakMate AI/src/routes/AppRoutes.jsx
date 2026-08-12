@@ -44,8 +44,6 @@ import About from "@pages/About";
 import ResetPassword from "@pages/ResetPassword";
 import Onboarding from "@pages/Onboarding";
 
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
 import AdminRoute from "./AdminRoute";
 
 import AdminDashboard from "@admin/pages/AdminDashboard";
@@ -61,6 +59,8 @@ import AdminLayout from "@admin/layout/AdminLayout";
 import SchoolDashboard from "@school-admin/pages/Dashboard";
 import SchoolStudents from "@school-admin/pages/Students";
 import SchoolResults from "@school-admin/pages/Results";
+import SchoolInsights from "@school-admin/pages/Insights";
+import SchoolTeachers from "@school-admin/pages/Teachers";
 import AddTeacher from "@school-admin/pages/AddTeacher";
 import SchoolAdminProfile from "@school-admin/pages/Profile";
 import SchoolAdminSettings from "@school-admin/pages/Settings";
@@ -72,7 +72,6 @@ function PageTransition({ children }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.22, ease: "easeOut" }}
       transition={{ duration: 0.2, ease: "easeOut" }}
     >
       {children}
@@ -136,9 +135,6 @@ export function AppRoutes() {
               </PublicRoute>
             }
           />
-        </Route>
-
-        {/* Protected Pages */}
 
           <Route
             path={ROUTES.RESET_PASSWORD}
@@ -151,6 +147,8 @@ export function AppRoutes() {
             }
           />
         </Route>
+
+        {/* Protected Pages */}
 
         {/* Onboarding Flow */}
         <Route
@@ -390,6 +388,9 @@ export function AppRoutes() {
             element={
               <PageTransition>
                 <StudentResultDetails />
+              </PageTransition>
+            }
+          />
 
           <Route
             path={ROUTES.HELP}
@@ -583,6 +584,22 @@ export function AppRoutes() {
             element={
               <PageTransition>
                 <SchoolResults />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_INSIGHTS}
+            element={
+              <PageTransition>
+                <SchoolInsights />
+              </PageTransition>
+            }
+          />
+          <Route
+            path={ROUTES.SCHOOL_ADMIN_TEACHERS}
+            element={
+              <PageTransition>
+                <SchoolTeachers />
               </PageTransition>
             }
           />

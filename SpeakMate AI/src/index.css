@@ -5,13 +5,13 @@
   --font-body: 'Plus Jakarta Sans', sans-serif;
 
   /* Theme color tokens - Light Mode Defaults */
-  --bg-base: #F8FAFC;
+  --bg-base: #F4F7FE;
   --bg-surface: #FFFFFF;
-  --bg-elevated: #F1F5F9;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --border-default: #E2E8F0;
-  --border-subtle: #F1F5F9;
+  --bg-elevated: #F9FAFB;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-default: #E5E7EB;
+  --border-subtle: #F3F4F6;
 
   --color-primary: #6C63FF;
   --color-primary-hover: #5A52E0;
